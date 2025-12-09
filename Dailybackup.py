@@ -7,18 +7,31 @@ import sys
 from multiprocessing import Pool, cpu_count
 
 
-src = "/home/student/data/prod/" 
-dest = "/home/student/data/prod_backup/"
+src = "/mnt/c/Users/prod" 
+dest = "/mnt/c/Users/backup"
 
 
 def backup_directory(subfolder_name):
-  subprocess.call(["rsync", "-arq", src, dest])
+  if subfolder_name:
+    src_path = os.path.join(src, subfolder_name)
+    dest_path = os.path.join(dest, subfolder_name)
+  else:
+    src_path = src
+    dest_path = dest
+
+  os.makedirs(dest_path, exist_ok=True)
+
+  subprocess.call(["rsync", "-arq", src_path + "/", dest_path + "/"])
 
 
 if __name__ == "__main__":
   subfolders_to_copy = []
   for root, directories, files in os.walk(src):
-    subfolders_to_copy = directories
+    subfolders_to_copy = directories.copy()
+
+    if files:
+      subfolders_to_copy.append("")
+    
     break 
 
   num_workers = cpu_count()
